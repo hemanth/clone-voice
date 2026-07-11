@@ -6,7 +6,7 @@
 
 import { EventEmitter } from './event-emitter.js';
 import { VoiceCloneEngine } from './engine.js';
-import { decodeAudio } from './utils.js';
+import { decodeAudio, encodeWav } from './utils.js';
 import { DEFAULT_LANGUAGE, LANGUAGE_BUNDLES, SAMPLE_RATE } from './constants.js';
 
 export class VoiceClone extends EventEmitter {
@@ -59,13 +59,19 @@ export class VoiceClone extends EventEmitter {
 
   /**
    * Clone a voice from audio.
-   * Accepts Float32Array (raw PCM), ArrayBuffer, or Blob.
+   * Accepts a URL string, Float32Array (raw PCM), ArrayBuffer, or Blob.
    */
-  async cloneVoice(audioData) {
+  async cloneVoice(input) {
     await this._ensureReady();
-    const pcm = audioData instanceof Float32Array
-      ? audioData
-      : await decodeAudio(audioData, this._sampleRate);
+    let pcm;
+    if (typeof input === 'string') {
+      const res = await fetch(input);
+      pcm = await decodeAudio(await res.arrayBuffer(), this._sampleRate);
+    } else if (input instanceof Float32Array) {
+      pcm = input;
+    } else {
+      pcm = await decodeAudio(input, this._sampleRate);
+    }
     return this._engine.encodeVoice(pcm);
   }
 
@@ -78,8 +84,7 @@ export class VoiceClone extends EventEmitter {
   }
 
   /**
-   * Generate and collect all audio into a single Float32Array.
-   * Returns { audio: Float32Array, sampleRate: number }.
+   * Generate speech and return a WAV ArrayBuffer.
    */
   async speak(text, options = {}) {
     await this._ensureReady();
@@ -97,7 +102,7 @@ export class VoiceClone extends EventEmitter {
     const audio = new Float32Array(total);
     let offset = 0;
     for (const c of chunks) { audio.set(c, offset); offset += c.length; }
-    return { audio, sampleRate: this._sampleRate };
+    return encodeWav(audio, this._sampleRate);
   }
 
   /** Stop any ongoing generation. */

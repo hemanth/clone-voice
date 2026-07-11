@@ -112,10 +112,7 @@ export interface GenerateOptions {
   temperature?: number;
 }
 
-export interface SpeakResult {
-  audio: Float32Array;
-  sampleRate: number;
-}
+
 
 export class VoiceClone extends EventEmitter {
   constructor(options?: VoiceCloneOptions);
@@ -126,9 +123,9 @@ export class VoiceClone extends EventEmitter {
   readonly sampleRate: number;
   readonly language: string | null;
 
-  cloneVoice(audioData: Float32Array | ArrayBuffer | Blob): Promise<VoiceEmbedding>;
+  cloneVoice(input: string | Float32Array | ArrayBuffer | Blob): Promise<VoiceEmbedding>;
   generate(text: string, options?: GenerateOptions): Promise<void>;
-  speak(text: string, options?: GenerateOptions): Promise<SpeakResult>;
+  speak(text: string, options?: GenerateOptions): Promise<ArrayBuffer>;
   stop(): void;
   setLanguage(language: string): Promise<void>;
   setVoice(voiceName: string): Promise<void>;
@@ -194,9 +191,9 @@ export class PCMPlayer extends EventEmitter {
 }
 // ── Top-level functions (shared singleton) ──────────────────────────
 
-export function cloneVoice(audioData: Float32Array | ArrayBuffer | Blob): Promise<VoiceEmbedding>;
+export function cloneVoice(input: string | Float32Array | ArrayBuffer | Blob): Promise<VoiceEmbedding>;
 export function generate(text: string, options?: GenerateOptions): Promise<void>;
-export function speak(text: string, options?: GenerateOptions): Promise<SpeakResult>;
+export function speak(text: string, options?: GenerateOptions): Promise<ArrayBuffer>;
 export function setLanguage(language: string): Promise<void>;
 export function setVoice(voiceName: string): Promise<void>;
 export function getVoices(): Promise<string[]>;
