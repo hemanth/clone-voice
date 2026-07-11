@@ -29,21 +29,25 @@ await generate('Streaming speech.');
 
 ## Record from mic
 
+Works in both browser and Node/CLI — same API.
+
 ```js
 import { recordMic, cloneVoice, speak } from 'clone-voice';
 
-const blob = await recordMic({ duration: 5000 });
-await cloneVoice(blob);
+const audio = await recordMic({ duration: 5000 });
+await cloneVoice(audio);
 const wav = await speak('Cloned from my mic!');
 ```
+
+Node/CLI requires `sox` — `brew install sox` (macOS), `apt install sox` (Linux).
 
 ## Node.js / CLI
 
 ```js
-import { readFile, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { cloneVoice, speak } from 'clone-voice';
 
-await cloneVoice((await readFile('./voice.wav')).buffer);
+await cloneVoice('https://example.com/voice.wav');
 const wav = await speak('Hello from Node.');
 await writeFile('./output.wav', Buffer.from(wav));
 ```

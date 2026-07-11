@@ -211,7 +211,7 @@ export interface RecordMicOptions {
   signal?: AbortSignal;
 }
 
-export function recordMic(options?: RecordMicOptions): Promise<Blob>;
+export function recordMic(options?: RecordMicOptions): Promise<ArrayBuffer>;
 
 // ── Utilities ───────────────────────────────────────────────────────
 

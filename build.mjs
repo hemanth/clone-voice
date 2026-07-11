@@ -4,7 +4,7 @@ import { copyFileSync } from 'node:fs';
 const shared = {
   entryPoints: ['src/index.js'],
   bundle: true,
-  external: ['onnxruntime-web'],
+  external: ['onnxruntime-web', 'node:child_process', 'node:os', 'node:path', 'node:fs/promises', 'node:crypto'],
   target: 'es2020',
   platform: 'neutral',
   sourcemap: true,
