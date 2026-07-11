@@ -60,6 +60,8 @@ export class VoiceClone extends EventEmitter {
   /**
    * Clone a voice from audio.
    * Accepts a URL string, Float32Array (raw PCM), ArrayBuffer, or Blob.
+   * Returns a voice handle to pass to speak() or generate().
+   * @returns {Promise<string>} Voice handle.
    */
   async cloneVoice(input) {
     await this._ensureReady();
@@ -72,7 +74,8 @@ export class VoiceClone extends EventEmitter {
     } else {
       pcm = await decodeAudio(input, this._sampleRate);
     }
-    return this._engine.encodeVoice(pcm);
+    await this._engine.encodeVoice(pcm);
+    return this._engine.currentVoice;
   }
 
   /**

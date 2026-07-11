@@ -11,11 +11,11 @@ npm install clone-voice
 ```js
 import { cloneVoice, speak } from 'clone-voice';
 
-await cloneVoice('/my-voice.wav');
-const wav = await speak('Hello from my cloned voice!');
+const voice = await cloneVoice('/my-voice.wav');
+const wav = await speak('Hello from my cloned voice!', { voice });
 ```
 
-`cloneVoice` accepts a URL, `ArrayBuffer`, `Blob`, or `Float32Array`. `speak` returns a WAV `ArrayBuffer`. Models lazy-load on first call.
+`cloneVoice` accepts a URL, `ArrayBuffer`, `Blob`, or `Float32Array` — returns a voice handle. `speak` returns a WAV `ArrayBuffer`. Models lazy-load on first call.
 
 ## Streaming
 

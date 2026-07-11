@@ -1,6 +1,6 @@
 {
   "name": "clone-voice",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Browser & Node voice cloning SDK powered by Pocket TTS / ONNX Runtime. Clone any voice from a short audio clip and generate speech — entirely client-side.",
   "type": "module",
   "main": "dist/index.cjs",

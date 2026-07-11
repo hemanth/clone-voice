@@ -123,7 +123,7 @@ export class VoiceClone extends EventEmitter {
   readonly sampleRate: number;
   readonly language: string | null;
 
-  cloneVoice(input: string | Float32Array | ArrayBuffer | Blob): Promise<VoiceEmbedding>;
+  cloneVoice(input: string | Float32Array | ArrayBuffer | Blob): Promise<string>;
   generate(text: string, options?: GenerateOptions): Promise<void>;
   speak(text: string, options?: GenerateOptions): Promise<ArrayBuffer>;
   stop(): void;
@@ -191,7 +191,7 @@ export class PCMPlayer extends EventEmitter {
 }
 // ── Top-level functions (shared singleton) ──────────────────────────
 
-export function cloneVoice(input: string | Float32Array | ArrayBuffer | Blob): Promise<VoiceEmbedding>;
+export function cloneVoice(input: string | Float32Array | ArrayBuffer | Blob): Promise<string>;
 export function generate(text: string, options?: GenerateOptions): Promise<void>;
 export function speak(text: string, options?: GenerateOptions): Promise<ArrayBuffer>;
 export function setLanguage(language: string): Promise<void>;
