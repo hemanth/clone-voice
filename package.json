@@ -1,0 +1,72 @@
+{
+  "name": "clone-voice",
+  "version": "0.1.0",
+  "description": "Browser & Node voice cloning SDK powered by Pocket TTS / ONNX Runtime. Clone any voice from a short audio clip and generate speech — entirely client-side.",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./worker": {
+      "import": "./dist/worker.mjs",
+      "require": "./dist/worker.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "voice-clone",
+    "voice-cloning",
+    "tts",
+    "text-to-speech",
+    "pocket-tts",
+    "onnx",
+    "browser-tts",
+    "speech-synthesis",
+    "ai-voice",
+    "web-worker",
+    "audioworklet"
+  ],
+  "author": "Hemanth HM <hemanth@h3manth.com> (https://h3manth.com)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hemanth/voice-clone.git"
+  },
+  "homepage": "https://github.com/hemanth/voice-clone#readme",
+  "bugs": {
+    "url": "https://github.com/hemanth/voice-clone/issues"
+  },
+  "peerDependencies": {
+    "onnxruntime-web": ">=1.18.0"
+  },
+  "peerDependenciesMeta": {
+    "onnxruntime-web": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.8.0"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

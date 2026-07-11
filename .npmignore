@@ -1,0 +1,7 @@
+src/
+build.mjs
+.gitignore
+.git/
+node_modules/
+*.tgz
+.DS_Store
