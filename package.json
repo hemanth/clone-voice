@@ -44,11 +44,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hemanth/voice-clone.git"
+    "url": "git+https://github.com/hemanth/clone-voice.git"
   },
-  "homepage": "https://github.com/hemanth/voice-clone#readme",
+  "homepage": "https://github.com/hemanth/clone-voice#readme",
   "bugs": {
-    "url": "https://github.com/hemanth/voice-clone/issues"
+    "url": "https://github.com/hemanth/clone-voice/issues"
   },
   "peerDependencies": {
     "onnxruntime-web": ">=1.18.0"
