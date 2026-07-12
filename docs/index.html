@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>clone-voice — Clone any voice, generate speech</title>
+  <meta name="description" content="Clone any voice from a short audio clip and generate speech — entirely in the browser. No server needed.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="container">
+      <div class="badge">Open Source · MIT License</div>
+      <h1>clone-voice</h1>
+      <p class="tagline">Clone any voice from a short audio clip and generate speech — entirely in the browser.</p>
+      <pre class="code-block"><code><span class="kw">const</span> clone = <span class="fn">require</span>(<span class="str">'clone-voice'</span>);
+
+<span class="kw">const</span> voice = <span class="kw">await</span> <span class="fn">clone</span>(<span class="str">'./my-voice.wav'</span>);
+<span class="kw">const</span> wav = <span class="kw">await</span> voice.<span class="fn">speak</span>(<span class="str">'Hello from my cloned voice!'</span>);</code></pre>
+      <div class="hero-actions">
+        <a href="#demo" class="btn btn-primary">Try Live Demo ↓</a>
+        <a href="https://github.com/hemanth/clone-voice" class="btn btn-ghost" target="_blank">GitHub →</a>
+      </div>
+      <div class="install-cmd">
+        <code>npm install clone-voice</code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('npm install clone-voice');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="container">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎙️</div>
+          <h3>Clone from Mic</h3>
+          <p>Record 5 seconds, get a cloned voice. Works in browser and Node/CLI.</p>
+          <pre class="code-sm"><code><span class="kw">const</span> v = <span class="kw">await</span> clone.<span class="fn">mic</span>(<span class="num">5000</span>);
+<span class="kw">const</span> wav = <span class="kw">await</span> v.<span class="fn">speak</span>(<span class="str">'Hi!'</span>);</code></pre>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔊</div>
+          <h3>Stream or Buffer</h3>
+          <p><code>.speak()</code> returns WAV. <code>.stream()</code> fires PCM chunks for real-time playback.</p>
+          <pre class="code-sm"><code>voice.<span class="fn">on</span>(<span class="str">'chunk'</span>, pcm => <span class="fn">play</span>(pcm));
+<span class="kw">await</span> voice.<span class="fn">stream</span>(<span class="str">'Streaming!'</span>);</code></pre>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌍</div>
+          <h3>Multi-language</h3>
+          <p>English, German, Italian, Portuguese, Spanish. Pass <code>{ lang }</code> to clone.</p>
+          <pre class="code-sm"><code><span class="kw">const</span> v = <span class="kw">await</span> <span class="fn">clone</span>(<span class="str">'./s.wav'</span>, {
+  <span class="prop">lang</span>: <span class="str">'german'</span>
+});</code></pre>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3>Built-in Voices</h3>
+          <p>Use pre-trained voices instantly. No audio clip needed.</p>
+          <pre class="code-sm"><code><span class="kw">const</span> v = <span class="kw">await</span> <span class="fn">clone</span>(<span class="str">'alba'</span>);
+<span class="kw">const</span> wav = <span class="kw">await</span> v.<span class="fn">speak</span>(<span class="str">'Hello!'</span>);</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Demo -->
+  <section class="demo" id="demo">
+    <div class="container">
+      <h2>Try it live</h2>
+      <p class="demo-subtitle">Models load from HuggingFace CDN (~100MB). First load takes a minute.</p>
+
+      <div class="demo-card">
+        <div class="demo-steps">
+          <!-- Step 1: Voice -->
+          <div class="step">
+            <div class="step-label">1. Pick a voice</div>
+            <div class="step-options">
+              <button class="voice-btn active" data-voice="alba">Alba</button>
+              <button class="voice-btn" data-voice="bruce">Bruce</button>
+              <button class="voice-btn" data-voice="julia">Julia</button>
+              <button class="voice-btn" data-mic="true">🎙️ Record Mic</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Text -->
+          <div class="step">
+            <div class="step-label">2. Enter text</div>
+            <textarea id="text-input" placeholder="Type something to say..." rows="3">Hello! This is clone-voice running entirely in your browser. No server needed.</textarea>
+          </div>
+
+          <!-- Step 3: Generate -->
+          <div class="step">
+            <div class="step-label">3. Generate</div>
+            <button id="speak-btn" class="btn btn-primary btn-large">
+              <span class="btn-text">Generate Speech</span>
+              <span class="btn-loader" hidden>
+                <span class="spinner"></span>
+                <span class="status-text">Loading models...</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Audio Player -->
+        <div id="player" class="player" hidden>
+          <div class="waveform" id="waveform"></div>
+          <audio id="audio-player" controls></audio>
+        </div>
+
+        <!-- Status -->
+        <div id="status" class="status"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>
+        MIT © <a href="https://h3manth.com">Hemanth.HM</a> ·
+        Powered by <a href="https://github.com/kyutai-labs/pocket-tts">Pocket TTS</a> ·
+        <a href="https://www.npmjs.com/package/clone-voice">npm</a> ·
+        <a href="https://github.com/hemanth/clone-voice">GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
