@@ -1,6 +1,6 @@
 # clone-voice
 
-Clone any voice from a short audio clip and generate speech — entirely in the browser.
+Clone any voice from a short audio clip and generate speech.
 
 ```bash
 npm install clone-voice
@@ -9,94 +9,60 @@ npm install clone-voice
 ## Quick start
 
 ```js
-import { cloneVoice, speak } from 'clone-voice';
+const clone = require('clone-voice');
 
-const voice = await cloneVoice('/my-voice.wav');
-const wav = await speak('Hello from my cloned voice!', { voice });
+const voice = await clone('./my-voice.wav');
+const wav = await voice.speak('Hello from my cloned voice!');
 ```
 
-`cloneVoice` accepts a URL, `ArrayBuffer`, `Blob`, or `Float32Array` — returns a voice handle. `speak` returns a WAV `ArrayBuffer`. Models lazy-load on first call.
+`clone()` loads models, encodes the voice, returns a `Voice`. `voice.speak()` returns a WAV `ArrayBuffer`. That's the whole API.
 
-## Streaming
+## From mic
 
 ```js
-import { cloneVoice, generate, on } from 'clone-voice';
+const clone = require('clone-voice');
 
-await cloneVoice('/my-voice.wav');
-on('audio-chunk', ({ data }) => { /* Float32Array PCM */ });
-await generate('Streaming speech.');
+const voice = await clone.mic(5000);
+const wav = await voice.speak('Cloned from my mic!');
 ```
 
-## Record from mic
-
-Works in both browser and Node/CLI — same API.
-
-```js
-import { recordMic, cloneVoice, speak } from 'clone-voice';
-
-const audio = await recordMic({ duration: 5000 });
-await cloneVoice(audio);
-const wav = await speak('Cloned from my mic!');
-```
-
-Node/CLI requires `sox` — `brew install sox` (macOS), `apt install sox` (Linux).
-
-## Node.js / CLI
-
-```js
-import { writeFile } from 'node:fs/promises';
-import { cloneVoice, speak } from 'clone-voice';
-
-await cloneVoice('https://example.com/voice.wav');
-const wav = await speak('Hello from Node.');
-await writeFile('./output.wav', Buffer.from(wav));
-```
+Works in browser (MediaRecorder) and Node/CLI (sox).
 
 ## Built-in voices
 
 ```js
-import { setVoice, speak } from 'clone-voice';
-
-await setVoice('alba');
-const wav = await speak('Using a built-in voice.');
+const voice = await clone('alba');
+const wav = await voice.speak('Using a built-in voice.');
 ```
 
-## Streaming playback
+## Streaming
 
 ```js
-import { cloneVoice, generate, on, PCMPlayer } from 'clone-voice';
+const voice = await clone('./my-voice.wav');
 
-const ctx = new AudioContext({ sampleRate: 24000 });
-const player = new PCMPlayer(ctx);
+voice.on('chunk', (pcm) => player.play(pcm));
+await voice.stream('Streaming speech.');
+```
 
-on('audio-chunk', ({ data }) => player.play(data));
-on('stream-end', () => player.notifyStreamEnded());
+## Node.js / CLI
 
-await cloneVoice('/my-voice.wav');
-await generate('Streaming with worklet playback.');
+```js
+const { writeFile } = require('node:fs/promises');
+const clone = require('clone-voice');
+
+const voice = await clone('./voice.wav');
+const wav = await voice.speak('Hello from Node.');
+await writeFile('./output.wav', Buffer.from(wav));
 ```
 
 ## Multi-language
 
 ```js
-import { setLanguage, speak } from 'clone-voice';
-
-await setLanguage('german');
-const wav = await speak('Hallo, wie geht es Ihnen?');
+const voice = await clone('./stimme.wav', { lang: 'german' });
+const wav = await voice.speak('Hallo, wie geht es Ihnen?');
 ```
 
 Supported: `english_2026-04`, `german`, `italian`, `portuguese`, `spanish`.
-
-## Multiple instances
-
-```js
-import { VoiceClone } from 'clone-voice';
-
-const en = new VoiceClone({ language: 'english_2026-04' });
-const de = new VoiceClone({ language: 'german' });
-```
-
-Top-level functions use a shared singleton. Use `VoiceClone` class when you need separate instances.
 
 ## Credits
 

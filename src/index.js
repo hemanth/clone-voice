@@ -1,91 +1,88 @@
 /**
- * voice-clone — Browser & Node voice cloning SDK.
+ * clone-voice — Clone any voice, generate speech.
  *
- * @module voice-clone
+ * @module clone-voice
  */
 
-import { VoiceClone } from './voice-clone.js';
+import { VoiceCloneEngine } from './engine.js';
+import { Voice } from './voice.js';
+import { decodeAudio } from './utils.js';
+import { recordMic } from './mic.js';
+import { DEFAULT_LANGUAGE, SAMPLE_RATE } from './constants.js';
 
-// ── Lazy singleton for top-level functions ──────────────────────────
+let _engine;
+let _lang = DEFAULT_LANGUAGE;
 
-let _instance;
-function _vc() {
-  if (!_instance) _instance = new VoiceClone();
-  return _instance;
-}
-
-/** Clone a voice from audio (Float32Array, ArrayBuffer, or Blob). */
-export async function cloneVoice(audioData) {
-  return _vc().cloneVoice(audioData);
-}
-
-/** Generate speech — streams via 'audio-chunk' events on the shared instance. */
-export async function generate(text, options) {
-  return _vc().generate(text, options);
-}
-
-/** Generate speech and return the full audio buffer. */
-export async function speak(text, options) {
-  return _vc().speak(text, options);
-}
-
-/** Switch language. */
-export async function setLanguage(language) {
-  return _vc().setLanguage(language);
-}
-
-/** Switch to a built-in voice. */
-export async function setVoice(voiceName) {
-  return _vc().setVoice(voiceName);
-}
-
-/** List available built-in voices. */
-export async function getVoices() {
-  return _vc().getVoices();
-}
-
-/** Stop generation. */
-export function stop() {
-  return _vc().stop();
-}
-
-/** Listen to events on the shared instance. */
-export function on(event, listener) {
-  _vc().on(event, listener);
-  return off.bind(null, event, listener);
-}
-
-/** Remove event listener. */
-export function off(event, listener) {
-  _vc().off(event, listener);
-}
-
-/** Get the shared VoiceClone instance (for advanced use). */
-export function getInstance(options) {
-  if (options && !_instance) {
-    _instance = new VoiceClone(options);
+async function getEngine(opts = {}) {
+  const lang = opts.lang || _lang;
+  if (!_engine) {
+    _engine = new VoiceCloneEngine({ modelBasePath: opts.modelBasePath, ort: opts.ort });
+    await _engine.loadBundle(lang);
+    _lang = lang;
+  } else if (lang !== _lang) {
+    await _engine.loadBundle(lang);
+    _lang = lang;
   }
-  return _vc();
+  return _engine;
 }
 
-// ── Re-exports for power users ──────────────────────────────────────
+function looksLikeUrl(s) {
+  return s.includes('/') || s.includes('.') || s.startsWith('http');
+}
 
-export { VoiceClone } from './voice-clone.js';
+/**
+ * Clone a voice from audio or pick a built-in voice.
+ *
+ * @param {string|ArrayBuffer|Blob|Float32Array} input - URL, file path, audio data, or built-in voice name.
+ * @param {object} [opts]
+ * @param {string} [opts.lang] - Language bundle.
+ * @returns {Promise<Voice>}
+ */
+async function clone(input, opts = {}) {
+  const engine = await getEngine(opts);
+  let voiceName;
+
+  if (typeof input === 'string' && !looksLikeUrl(input)) {
+    // Built-in voice name
+    await engine.setVoice(input);
+    voiceName = input;
+  } else {
+    // Audio input — URL, ArrayBuffer, Blob, Float32Array
+    let pcm;
+    if (typeof input === 'string') {
+      const res = await fetch(input);
+      pcm = await decodeAudio(await res.arrayBuffer(), SAMPLE_RATE);
+    } else if (input instanceof Float32Array) {
+      pcm = input;
+    } else {
+      pcm = await decodeAudio(input, SAMPLE_RATE);
+    }
+    await engine.encodeVoice(pcm);
+    voiceName = engine.currentVoice;
+  }
+
+  return new Voice(engine, voiceName, SAMPLE_RATE);
+}
+
+/**
+ * Clone a voice from the microphone.
+ *
+ * @param {number} [duration=5000] - Recording duration in ms.
+ * @param {object} [opts] - Options passed to clone().
+ * @returns {Promise<Voice>}
+ */
+clone.mic = async function (duration = 5000, opts = {}) {
+  const audio = await recordMic({ duration, ...opts });
+  return clone(audio, opts);
+};
+
+export default clone;
+
+// Re-exports for power users
+export { Voice } from './voice.js';
 export { VoiceCloneEngine } from './engine.js';
 export { PCMPlayer } from './pcm-player.js';
 export { EventEmitter } from './event-emitter.js';
 export { recordMic } from './mic.js';
-export { encodeWav, resampleLinear, decodeAudio, parseNpy, parseVoicesBin } from './utils.js';
-export {
-  SAMPLE_RATE,
-  LATENT_DIM,
-  CONDITIONING_DIM,
-  SAMPLES_PER_FRAME,
-  MAX_FRAMES,
-  LSD_STEPS,
-  TEMPERATURE,
-  MODEL_STEMS,
-  LANGUAGE_BUNDLES,
-  DEFAULT_LANGUAGE,
-  HF_CDN_BASE,
-} from './constants.js';
+export { encodeWav, resampleLinear, decodeAudio } from './utils.js';
+export { SAMPLE_RATE, LANGUAGE_BUNDLES, DEFAULT_LANGUAGE } from './constants.js';
