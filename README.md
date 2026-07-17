@@ -9,7 +9,7 @@ npm install clone-voice
 ## Quick start
 
 ```js
-const clone = require('clone-voice');
+import clone from 'clone-voice';
 
 const voice = await clone('./my-voice.wav');
 const wav = await voice.speak('Hello from my cloned voice!');
@@ -20,7 +20,7 @@ const wav = await voice.speak('Hello from my cloned voice!');
 ## From mic
 
 ```js
-const clone = require('clone-voice');
+import clone from 'clone-voice';
 
 const voice = await clone.mic(5000);
 const wav = await voice.speak('Cloned from my mic!');
@@ -47,8 +47,8 @@ await voice.stream('Streaming speech.');
 ## Node.js / CLI
 
 ```js
-const { writeFile } = require('node:fs/promises');
-const clone = require('clone-voice');
+import { writeFile } from 'node:fs/promises';
+import clone from 'clone-voice';
 
 const voice = await clone('./voice.wav');
 const wav = await voice.speak('Hello from Node.');
